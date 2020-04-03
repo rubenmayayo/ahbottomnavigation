@@ -463,7 +463,14 @@ public class AHBottomNavigation extends FrameLayout {
 				view.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						updateItems(itemIndex, true);
+						updateItems(itemIndex, true, true);
+					}
+				});
+				view.setOnLongClickListener(new OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View view) {
+						updateItems(itemIndex, true, false);
+						return true;
 					}
 				});
 				iconDrawable = forceTint ? AHHelper.getTintDrawable(items.get(i).getDrawable(context),
@@ -596,7 +603,14 @@ public class AHBottomNavigation extends FrameLayout {
 				view.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						updateSmallItems(itemIndex, true);
+						updateSmallItems(itemIndex, true, true);
+					}
+				});
+				view.setOnLongClickListener(new OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View view) {
+						updateSmallItems(itemIndex, true, false);
+						return true;
 					}
 				});
 				view.setSoundEffectsEnabled(soundEffectsEnabled);
@@ -632,18 +646,28 @@ public class AHBottomNavigation extends FrameLayout {
 	 *
 	 * @param itemIndex   int: Selected item position
 	 * @param useCallback boolean: Use or not the callback
+	 * @param singleTap boolean: True to handle single tap, false to handle long tap
 	 */
-	private void updateItems(final int itemIndex, boolean useCallback) {
+	private void updateItems(final int itemIndex, boolean useCallback, boolean singleTap) {
 
 		if (currentItem == itemIndex) {
 			if (tabSelectedListener != null && useCallback) {
-				tabSelectedListener.onTabSelected(itemIndex, true);
+				if (singleTap) {
+					tabSelectedListener.onTabSelected(itemIndex, true);
+				} else {
+					tabSelectedListener.onLongTabSelected(itemIndex, true);
+				}
 			}
 			return;
 		}
 
 		if (tabSelectedListener != null && useCallback) {
-			boolean selectionAllowed = tabSelectedListener.onTabSelected(itemIndex, false);
+			boolean selectionAllowed;
+			if (singleTap) {
+				selectionAllowed = tabSelectedListener.onTabSelected(itemIndex, false);
+			} else {
+				selectionAllowed = tabSelectedListener.onLongTabSelected(itemIndex, false);
+			}
 			if (!selectionAllowed) return;
 		}
 
@@ -766,18 +790,28 @@ public class AHBottomNavigation extends FrameLayout {
 	 *
 	 * @param itemIndex   int: Selected item position
 	 * @param useCallback boolean: Use or not the callback
+	 * @param singleTap boolean: True to handle single tap, false to handle long tap
 	 */
-	private void updateSmallItems(final int itemIndex, boolean useCallback) {
+	private void updateSmallItems(final int itemIndex, boolean useCallback, boolean singleTap) {
 
 		if (currentItem == itemIndex) {
 			if (tabSelectedListener != null && useCallback) {
-				tabSelectedListener.onTabSelected(itemIndex, true);
+				if (singleTap) {
+					tabSelectedListener.onTabSelected(itemIndex, true);
+				} else {
+					tabSelectedListener.onLongTabSelected(itemIndex, true);
+				}
 			}
 			return;
 		}
 
 		if (tabSelectedListener != null && useCallback) {
-			boolean selectionAllowed = tabSelectedListener.onTabSelected(itemIndex, false);
+			boolean selectionAllowed;
+			if (singleTap) {
+				selectionAllowed = tabSelectedListener.onTabSelected(itemIndex, false);
+			} else {
+				selectionAllowed = tabSelectedListener.onLongTabSelected(itemIndex, false);
+			}
 			if (!selectionAllowed) return;
 		}
 
@@ -1241,9 +1275,9 @@ public class AHBottomNavigation extends FrameLayout {
 		if (titleState != TitleState.ALWAYS_HIDE &&
 				titleState != TitleState.SHOW_WHEN_ACTIVE_FORCE &&
 				(items.size() == MIN_ITEMS || titleState == TitleState.ALWAYS_SHOW)) {
-			updateItems(position, useCallback);
+			updateItems(position, useCallback, true);
 		} else {
-			updateSmallItems(position, useCallback);
+			updateSmallItems(position, useCallback, true);
 		}
 	}
 
@@ -1656,6 +1690,15 @@ public class AHBottomNavigation extends FrameLayout {
 		 * @return boolean: true for updating the tab UI, false otherwise
 		 */
 		boolean onTabSelected(int position, boolean wasSelected);
+
+		/**
+		 * Called when a long tab has been done.
+		 *
+		 * @param position    int: Position of the long selected tab
+		 * @param wasSelected boolean: true if the tab was already selected
+		 * @return boolean: true for updating the tab UI, false otherwise
+		 */
+		boolean onLongTabSelected(int position, boolean wasSelected);
 	}
 
 	public interface OnNavigationPositionListener {
