@@ -19,6 +19,7 @@ public class AHBottomNavigationItem {
 	
 	private String title = "";
 	private Drawable drawable;
+	private Drawable activeDrawable;
 	private int color = Color.GRAY;
 	
 	private
@@ -27,6 +28,8 @@ public class AHBottomNavigationItem {
 	private
 	@DrawableRes
 	int drawableRes = 0;
+	@DrawableRes
+	int activeDrawableRes = 0;
 	private
 	@ColorRes
 	int colorRes = 0;
@@ -135,6 +138,24 @@ public class AHBottomNavigationItem {
 		}
 		return drawable;
 	}
+
+	public Drawable getDrawable(Context context, boolean current) {
+		return current ? getActiveDrawable(context) : getDrawable(context);
+	}
+
+	public Drawable getActiveDrawable(Context context) {
+		if (activeDrawableRes != 0) {
+			try {
+				return AppCompatResources.getDrawable(context, activeDrawableRes);
+			} catch (Resources.NotFoundException e) {
+				return ContextCompat.getDrawable(context, activeDrawableRes);
+			}
+		}
+		if (activeDrawable != null) {
+			return activeDrawable;
+		}
+		return getDrawable(context);
+	}
 	
 	public void setDrawable(@DrawableRes int drawableRes) {
 		this.drawableRes = drawableRes;
@@ -144,5 +165,15 @@ public class AHBottomNavigationItem {
 	public void setDrawable(Drawable drawable) {
 		this.drawable = drawable;
 		this.drawableRes = 0;
+	}
+
+	public void setActiveDrawable(@DrawableRes int drawableRes) {
+		this.activeDrawableRes = drawableRes;
+		this.activeDrawable = null;
+	}
+
+	public void setActiveDrawable(Drawable drawable) {
+		this.activeDrawable = drawable;
+		this.activeDrawableRes = 0;
 	}
 }
